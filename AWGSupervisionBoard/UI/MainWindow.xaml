@@ -1,0 +1,100 @@
+﻿<Window x:Class="Pavlo.AWGSupervisionBoard.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:valid="clr-namespace:Pavlo.AWGSupervisionBoard.UI.ValidationInput"
+        xmlns:conv="clr-namespace:Pavlo.MyHelpers.Converters;assembly=MyHelpers"
+        xmlns:oxy="http://oxyplot.org/wpf"
+        mc:Ignorable="d"
+        Name="wnd"
+        Title="Keysight Supervision Board" MinHeight="300" MinWidth="500" SizeToContent="WidthAndHeight">
+    <Window.Resources>
+        <conv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+    </Window.Resources>
+    <DockPanel LastChildFill="True"  Grid.IsSharedSizeScope="True">
+        <StatusBar DockPanel.Dock="Bottom" >
+            <StackPanel Style="{StaticResource stcPanStatusbar}" Visibility="{Binding Path=IsResposeAwaiting, Converter={StaticResource BoolToVisibilityConverter}}">
+                <Label Name="lblResposeAwaiting" Content="Respose from AWG is awaiting" IsEnabled="{Binding Path=IsResposeAwaiting}"></Label>
+                <ProgressBar Style="{StaticResource prgbarActionExecuting}"></ProgressBar>
+            </StackPanel>
+            <StackPanel Style="{StaticResource stcPanStatusbar}" Visibility="{Binding Path=IsSignalGenerating, Converter={StaticResource BoolToVisibilityConverter}}">
+                <Label Name="lblSignalGenerating" Content="Signal is generating" Foreground="Green"></Label>
+            </StackPanel>
+        </StatusBar>
+        <StackPanel Name="stcPanMainContent"  Orientation="Vertical" Width="Auto">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Style="{StaticResource propertiesWrap_Row}"/>
+                    <RowDefinition Style="{StaticResource propertiesWrap_Row}"/>
+                    <RowDefinition Style="{StaticResource propertiesWrap_Row}"/>
+                    <RowDefinition Style="{StaticResource propertiesWrap_Row}"/>
+                    <RowDefinition Style="{StaticResource propertiesWrap_Row}"/>
+                    <RowDefinition Style="{StaticResource propertiesWrap_Row}"/>
+                    <RowDefinition Style="{StaticResource propertiesWrap_Row}"/>
+                    <RowDefinition Style="{StaticResource propertiesWrap_Row}"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Style="{StaticResource propertiesWrap_ColumnDescription}"/>
+                    <ColumnDefinition Style="{StaticResource propertiesWrap_ColumnTxtBox}"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Row="0" Grid.Column="0" Style="{StaticResource stcPanPropertyDescription}">
+                    <TextBlock Text="Insruments Address String"></TextBlock>
+                </StackPanel>
+                <TextBox x:Name="ReceiverID" Grid.Row="0" Grid.Column="1" Text="{Binding Path=DeviceAddress, UpdateSourceTrigger=LostFocus}"/>
+                <Button Grid.Row="1" Grid.Column="0" Content="Connect to the Instrument" ToolTip="Connect and reset the instrument" Command="{Binding Path=TheCommandConnect}"></Button>
+                <StackPanel Style="{StaticResource stcPanPropertyDescription}" Grid.Row="2"  Grid.Column="0">
+                    <TextBlock  Text="Load data-file"></TextBlock>
+                </StackPanel>
+                <Button x:Name="btnLoadDataFile" Grid.Row="2" Grid.Column="2" Content="File..."
+                        Command="{Binding Path=TheCommandBrowse}"></Button>
+                <oxy:PlotView Grid.Row="3" Grid.Column="1" Model="{Binding Path=ThePlotModel}" Height="400" MinWidth="500">
+                </oxy:PlotView>
+                <StackPanel Grid.Row="4" Grid.Column="0" Style="{StaticResource stcPanPropertyDescription}">
+                    <TextBlock Text="Voltage amplitude [V]"></TextBlock>
+                </StackPanel>
+                <StackPanel Grid.Row="4" Grid.Column="1">
+                    <TextBox Name="txtVAmpl" Style="{StaticResource propertiesWrap_PropertyValue}" IsEnabled="{Binding Path=CanWeRaiseRequestToAWG, Mode=OneWay}">
+                        <TextBox.Resources>
+                            <valid:BindingProxy x:Key="proxy" Data="{Binding}"/>
+                        </TextBox.Resources>
+                        <TextBox.Text>
+                            <Binding Path="VoltageAmplitude" Mode="TwoWay" UpdateSourceTrigger="LostFocus">
+                                <Binding.ValidationRules>
+                                    <valid:InputDataValidation InternalPropertyName="boundeddoublevalue">
+                                        <valid:InputDataValidation.segmentBounds>
+                                            <valid:BoundedDouble_DepProp LowerBound="{Binding Path=Data.VoltageAmplitude_lowerBound, Source={StaticResource proxy}}" UpperBound="{Binding Path=Data.VoltageAmplitude_upperBound, Source={StaticResource proxy}}"></valid:BoundedDouble_DepProp>
+                                        </valid:InputDataValidation.segmentBounds>
+                                    </valid:InputDataValidation>
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBox.Text>
+                    </TextBox>
+                </StackPanel>
+                <StackPanel Grid.Row="5" Grid.Column="0" Style="{StaticResource stcPanPropertyDescription}">
+                    <TextBlock Text="PRF [Hz]"></TextBlock>
+                </StackPanel>
+                <StackPanel Grid.Row="5" Grid.Column="1">
+                    <TextBox Name="txtPRF" Style="{StaticResource propertiesWrap_PropertyValue}" IsEnabled="{Binding Path=CanWeRaiseRequestToAWG, Mode=OneWay}">
+                        <TextBox.Resources>
+                            <valid:BindingProxy x:Key="proxy" Data="{Binding}"/>
+                        </TextBox.Resources>
+                        <TextBox.Text>
+                            <Binding Path="PRF" Mode="TwoWay" UpdateSourceTrigger="LostFocus">
+                                <Binding.ValidationRules>
+                                    <valid:InputDataValidation InternalPropertyName="boundeddoublevalue">
+                                        <valid:InputDataValidation.segmentBounds>
+                                            <valid:BoundedDouble_DepProp LowerBound="{Binding Path=Data.PRF_lowerBound, Source={StaticResource proxy}}" UpperBound="{Binding Path=Data.PRF_upperBound, Source={StaticResource proxy}}"></valid:BoundedDouble_DepProp>
+                                        </valid:InputDataValidation.segmentBounds>
+                                    </valid:InputDataValidation>
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBox.Text>
+                    </TextBox>
+                </StackPanel>
+                <Button Grid.Row="6" Grid.Column="0" Content="Start signal generation" Command="{Binding Path=TheCommandStartSignalGeneration}" CommandParameter="{Binding ElementName=wnd}"></Button>
+                <Button Grid.Row="7" Grid.Column="0" Content="Stop" Command="{Binding Path=TheCommandStop}"></Button>
+            </Grid>
+        </StackPanel>
+    </DockPanel>
+</Window>
